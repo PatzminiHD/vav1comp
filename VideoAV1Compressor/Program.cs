@@ -4,7 +4,7 @@ namespace VideoAV1Compressor
 {
     internal class Program
     {
-        const string VERSION_STRING = "v1.1.0";
+        const string VERSION_STRING = "v1.1.1";
         static string directory = "";
         static int sublevels = -1;
         static uint quality = 23, cpu_used = 1;
@@ -83,6 +83,7 @@ namespace VideoAV1Compressor
         static void ShowHelpAndExit()
         {
             Console.WriteLine($"VideoAV1Compressor {VERSION_STRING}");
+            Console.WriteLine($"using {PatzminiHD.CSLib.Info.Name} {PatzminiHD.CSLib.Info.Version}");
             Console.WriteLine($"");
             Console.WriteLine($"Usage: vav1comp -d <path/to/directory> [-s] <number> [-q] <number> [-c] <number>");
             Console.WriteLine($"Command line arguments:");
