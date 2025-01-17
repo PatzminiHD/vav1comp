@@ -4,7 +4,7 @@ namespace VideoAV1Compressor
 {
     internal class Program
     {
-        const string VERSION_STRING = "v0.0.1";
+        const string VERSION_STRING = "v1.0.0";
         static string directory = "";
         static int sublevels = -1;
         static uint quality = 23, cpu_used = 1;
@@ -12,7 +12,7 @@ namespace VideoAV1Compressor
         {
             (new(){"h", "help"}, CmdArgsParser.ArgType.SET),
             (new(){"d", "directory"}, CmdArgsParser.ArgType.STRING),
-            (new(){"s", "sublevels"}, CmdArgsParser.ArgType.UINT),
+            (new(){"s", "sublevels"}, CmdArgsParser.ArgType.INT),
             (new(){"q", "quality"}, CmdArgsParser.ArgType.UINT),
             (new(){"c", "cpu-used"}, CmdArgsParser.ArgType.UINT),
         };
@@ -28,7 +28,7 @@ namespace VideoAV1Compressor
                 if(!VerifyArgs(parsedArgs))
                     return 1;
 
-                CompressorManager compressorManager = new(directory, sublevels);
+                CompressorManager compressorManager = new(directory, sublevels, quality, cpu_used);
                 compressorManager.Run();
             }
             catch (ArgumentException e)
