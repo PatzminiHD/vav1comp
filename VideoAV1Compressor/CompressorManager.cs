@@ -40,6 +40,10 @@ namespace VideoAV1Compressor
             Console.WriteLine("Filtering out videos that have already been reencoded...");
             filesList = GetNotReencodedVideoFiles(filesList);
             Console.WriteLine($"Found {filesList.Count} video file{(filesList.Count != 1 ? "s" : "")} that {(filesList.Count != 1 ? "have" : "has")} not been reencoded");
+            
+            if(!PatzminiHD.CSLib.Input.Console.YesNo.Show("Do you want to continue?", true))
+                return;
+
             Console.WriteLine("Beginning encoding...");
             ReencodeVideos(filesList);
             Console.WriteLine("Encoding finished!");
