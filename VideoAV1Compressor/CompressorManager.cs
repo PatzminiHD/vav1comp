@@ -111,7 +111,7 @@ namespace VideoAV1Compressor
                 if(codec == null)
                     continue;
 
-                if(!codec.ToLower().Contains("av1"))
+                if(!codec.ToLower().Contains("av1") && !codec.ToLower().Contains("hevc"))
                     filteredFiles.Add(file);
                 else
                     Console.WriteLine($"Has Codec AV1: {file}");
