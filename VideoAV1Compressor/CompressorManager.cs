@@ -33,6 +33,7 @@ namespace VideoAV1Compressor
 
             Console.WriteLine($"Searching for files in '{directory}'...");
             filesList = GetAllFiles();
+            filesList.Sort();
             Console.WriteLine($"Found {filesList.Count} file{(filesList.Count != 1 ? "s" : "")}");
             Console.WriteLine("Filtering for video files...");
             filesList = GetVideoFiles(filesList);
@@ -114,7 +115,7 @@ namespace VideoAV1Compressor
                 if(!codec.ToLower().Contains("av1") && !codec.ToLower().Contains("hevc"))
                     filteredFiles.Add(file);
                 else
-                    Console.WriteLine($"Has Codec AV1: {file}");
+                    Console.WriteLine($"Has Codec AV1 or HEVC: {file}");
             }
 
             return filteredFiles;

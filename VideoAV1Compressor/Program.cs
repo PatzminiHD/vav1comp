@@ -4,7 +4,7 @@ namespace VideoAV1Compressor
 {
     internal class Program
     {
-        const string VERSION_STRING = "v1.1.2";
+        const string VERSION_STRING = "v1.1.3";
         static string directory = "";
         static int sublevels = -1;
         static uint quality = 23, cpu_used = 1;
