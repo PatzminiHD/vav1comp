@@ -42,6 +42,14 @@ namespace VideoAV1Compressor
             filesList = GetNotReencodedVideoFiles(filesList);
             Console.WriteLine($"Found {filesList.Count} video file{(filesList.Count != 1 ? "s" : "")} that {(filesList.Count != 1 ? "have" : "has")} not been reencoded");
             
+            if(filesList.Count < 1)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("No videos to work on!");
+                Console.ResetColor();
+                Environment.Exit(0);
+            }
+
             if(!PatzminiHD.CSLib.Input.Console.YesNo.Show("Do you want to continue?", true))
                 return;
 
@@ -106,8 +114,16 @@ namespace VideoAV1Compressor
             List<string> filteredFiles = new();
             string? codec;
 
+
+            int i = 0;
+            PatzminiHD.CSLib.Output.Console.ProgressBar progressBar = new(0, files.Count, -1, -1, (uint)Console.WindowWidth - 5, false);
+            progressBar.Value = i;
+            Console.SetCursorPosition(0, Console.CursorTop);
+            progressBar.Draw();
+
             foreach(string file in files)
             {
+                i++;
                 codec = PatzminiHD.CSLib.ProgramInterfaces.FFprobe.GetCodecName(file);
                 if(codec == null)
                     continue;
@@ -115,8 +131,14 @@ namespace VideoAV1Compressor
                 if(!codec.ToLower().Contains("av1") && !codec.ToLower().Contains("hevc"))
                     filteredFiles.Add(file);
                 else
-                    Console.WriteLine($"Has Codec AV1 or HEVC: {file}");
+                    Console.WriteLine($"\nHas Codec AV1 or HEVC: {file}");
+
+                Console.SetCursorPosition(0, Console.CursorTop);
+                progressBar.Value = i;
+                progressBar.Draw();
             }
+
+            Console.WriteLine();
 
             return filteredFiles;
         }
@@ -125,13 +147,26 @@ namespace VideoAV1Compressor
         {
             List<string> filteredFiles = new();
 
+            int i = 0;
+            PatzminiHD.CSLib.Output.Console.ProgressBar progressBar = new(0, files.Count, -1, -1, (uint)Console.WindowWidth - 5, false);
+            progressBar.Value = i;
+            Console.SetCursorPosition(0, Console.CursorTop);
+            progressBar.Draw();
+
             foreach(string file in files)
             {
+                i++;
                 if(PatzminiHD.CSLib.ProgramInterfaces.FFprobe.IsVideoFile(file))
                     filteredFiles.Add(file);
                 else
                     Console.WriteLine($"Not video file: {file}");
+
+                Console.SetCursorPosition(0, Console.CursorTop);
+                progressBar.Value = i;
+                progressBar.Draw();
             }
+
+            Console.WriteLine();
 
             return filteredFiles;
         }
