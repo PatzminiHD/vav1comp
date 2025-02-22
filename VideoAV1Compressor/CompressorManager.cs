@@ -180,7 +180,7 @@ namespace VideoAV1Compressor
                 if(PatzminiHD.CSLib.ProgramInterfaces.FFprobe.IsVideoFile(file))
                     filteredFiles.Add(file);
                 else
-                    Console.WriteLine($"Not video file: {file}");
+                    Console.WriteLine($"\nNot video file: {file}");
 
                 Console.SetCursorPosition(0, Console.CursorTop);
                 progressBar.Value = i;
