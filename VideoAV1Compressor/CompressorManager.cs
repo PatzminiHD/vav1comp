@@ -12,8 +12,10 @@ namespace VideoAV1Compressor
         private string directory;
         private int sublevels;
         private uint quality, cpu_used;
+        private string? skipListPath;
         private List<string>? filesList;
-        public CompressorManager(string directory, int sublevels, uint quality, uint cpu_used)
+        private List<string>? skipList;
+        public CompressorManager(string directory, int sublevels, uint quality, uint cpu_used, string? skipListPath)
         {
             if (!Directory.Exists(directory))
                 throw new Exception("The given directory is not valid");
@@ -22,6 +24,10 @@ namespace VideoAV1Compressor
             this.sublevels = sublevels;
             this.quality = quality;
             this.cpu_used = cpu_used;
+            if(skipListPath != null)
+                this.skipListPath = skipListPath;
+            else
+                this.skipListPath = Path.Combine(directory, $"vav1comp_skip_list.txt");
         }
 
         public void Run()
@@ -29,7 +35,13 @@ namespace VideoAV1Compressor
             Console.WriteLine($"Directory: {directory}");
             Console.WriteLine($"Sublevels: {sublevels}");
             Console.WriteLine($"Quality:   {quality}");
-            Console.WriteLine($"Cpu-Used:  {cpu_used}\n");
+            Console.WriteLine($"Cpu-Used:  {cpu_used}");
+            Console.WriteLine($"Skip-List:  {skipListPath}\n");
+
+            Console.WriteLine($"Reading skip list...");
+            if(File.Exists(skipListPath))
+                skipList = File.ReadAllLines(skipListPath).ToList();
+            Console.WriteLine($"Found {(skipList == null ? "no" : skipList.Count)} video{(skipList != null && skipList.Count == 1 ? "" : "s")} to skip");
 
             Console.WriteLine($"Searching for files in '{directory}'...");
             filesList = GetAllFiles();
@@ -85,9 +97,15 @@ namespace VideoAV1Compressor
                     if(PatzminiHD.CSLib.Input.Console.YesNo.Show("Do you want to overwrite the original file?", true))
                     {
                         File.Delete(file);
-                        File.Move(newFileName, file);
+                        File.Move(newFileName, Path.Combine(Path.GetDirectoryName(file)!, Path.GetFileNameWithoutExtension(file) + ".mkv"));
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine($"Overwriting file {file} finished!");
+                    }
+                    else
+                    {
+                        File.Delete(newFileName);
+                        if(skipListPath != null)
+                            File.AppendAllText(skipListPath, file + "\n");
                     }
                 }
                 else
@@ -112,6 +130,9 @@ namespace VideoAV1Compressor
         private List<string> GetNotReencodedVideoFiles(List<string> files)
         {
             List<string> filteredFiles = new();
+            if(files.Count == 0)
+                return filteredFiles;
+                
             string? codec;
 
 
@@ -173,7 +194,12 @@ namespace VideoAV1Compressor
 
         private List<string> GetAllFiles()
         {
-            return PatzminiHD.CSLib.FileSystem.Directory.GetAllFiles(this.directory, this.sublevels).Result;
+            var files = PatzminiHD.CSLib.FileSystem.Directory.GetAllFiles(this.directory, this.sublevels).Result;
+            if(skipList != null)
+            {
+                files = files.Where(f => !skipList.Contains(f)).ToList();
+            }
+            return files;
         }
     }
 }

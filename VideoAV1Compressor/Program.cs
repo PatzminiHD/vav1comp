@@ -4,10 +4,11 @@ namespace VideoAV1Compressor
 {
     internal class Program
     {
-        const string VERSION_STRING = "v1.2.0";
+        const string VERSION_STRING = "v1.3.0";
         static string directory = "";
         static int sublevels = -1;
         static uint quality = 23, cpu_used = 1;
+        static string? skipListPath = null;
         static List<(List<string> names, CmdArgsParser.ArgType type)> validArgs = new()
         {
             (new(){"h", "help"}, CmdArgsParser.ArgType.SET),
@@ -15,6 +16,7 @@ namespace VideoAV1Compressor
             (new(){"s", "sublevels"}, CmdArgsParser.ArgType.INT),
             (new(){"q", "quality"}, CmdArgsParser.ArgType.UINT),
             (new(){"c", "cpu-used"}, CmdArgsParser.ArgType.UINT),
+            (new(){"", "skip-list"}, CmdArgsParser.ArgType.STRING),
         };
         static int Main(string[] args)
         {
@@ -28,7 +30,7 @@ namespace VideoAV1Compressor
                 if(!VerifyArgs(parsedArgs))
                     return 1;
 
-                CompressorManager compressorManager = new(directory, sublevels, quality, cpu_used);
+                CompressorManager compressorManager = new(directory, sublevels, quality, cpu_used, skipListPath);
                 compressorManager.Run();
             }
             catch (ArgumentException e)
@@ -67,6 +69,9 @@ namespace VideoAV1Compressor
 
                 if(parsedArgs.ContainsKey(validArgs[4].names))  //cpu-used
                     cpu_used = (uint)parsedArgs.GetValueOrDefault(validArgs[4].names).value!;
+
+                if(parsedArgs.ContainsKey(validArgs[5].names))  //skip-list
+                    skipListPath = parsedArgs.GetValueOrDefault(validArgs[5].names).value?.ToString()!;
 
                 if (quality > 63) //Value can only range from 0 to 63 (inclusive)
                 {
