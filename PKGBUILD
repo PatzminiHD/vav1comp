@@ -1,7 +1,7 @@
 # Maintainer: PatzminiHD <7.0@gmx.at>
 pkgname=vav1comp-git
 _pkgname=${pkgname%-git}
-pkgver=1.4.1
+pkgver=1.4.2
 pkgrel=1
 pkgdesc="Re-encode videos to AV1"
 arch=('x86_64')
