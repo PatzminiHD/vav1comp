@@ -13,9 +13,10 @@ namespace VideoAV1Compressor
         private int sublevels;
         private uint quality, cpu_used;
         private string? skipListPath;
+        private bool confirm;
         private List<string>? filesList;
         private List<string>? skipList;
-        public CompressorManager(string directory, int sublevels, uint quality, uint cpu_used, string? skipListPath)
+        public CompressorManager(string directory, int sublevels, uint quality, uint cpu_used, string? skipListPath, bool confirm)
         {
             if (!Directory.Exists(directory))
                 throw new Exception("The given directory is not valid");
@@ -24,6 +25,7 @@ namespace VideoAV1Compressor
             this.sublevels = sublevels;
             this.quality = quality;
             this.cpu_used = cpu_used;
+            this.confirm = confirm;
             if(skipListPath != null)
                 this.skipListPath = skipListPath;
             else
@@ -36,7 +38,8 @@ namespace VideoAV1Compressor
             Console.WriteLine($"Sublevels: {sublevels}");
             Console.WriteLine($"Quality:   {quality}");
             Console.WriteLine($"Cpu-Used:  {cpu_used}");
-            Console.WriteLine($"Skip-List:  {skipListPath}\n");
+            Console.WriteLine($"Skip-List:  {skipListPath}");
+            Console.WriteLine($"Confirm:  {confirm}\n");
 
             Console.WriteLine($"Reading skip list...");
             if(File.Exists(skipListPath))
@@ -94,12 +97,24 @@ namespace VideoAV1Compressor
                     Console.WriteLine($"Finished encoding file {file}!");
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    if(PatzminiHD.CSLib.Input.Console.YesNo.Show("Do you want to overwrite the original file?", true))
+                    if(confirm || PatzminiHD.CSLib.Input.Console.YesNo.Show("Do you want to overwrite the original file?", true))
                     {
-                        File.Delete(file);
-                        File.Move(newFileName, Path.Combine(Path.GetDirectoryName(file)!, Path.GetFileNameWithoutExtension(file) + ".mkv"));
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"Overwriting file {file} finished!");
+                        if(new FileInfo(newFileName).Length < new FileInfo(file).Length)
+                        {
+                            File.Delete(file);
+                            File.Move(newFileName, Path.Combine(Path.GetDirectoryName(file)!, Path.GetFileNameWithoutExtension(file) + ".mkv"));
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.WriteLine($"Overwriting file {file} finished!");
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine($"Not overwriting file {file}\nReencoded file is bigger than original");
+                            File.Delete(newFileName);
+
+                            if(skipListPath != null)
+                                File.AppendAllText(skipListPath, file + "\n");
+                        }
                     }
                     else
                     {
@@ -112,6 +127,7 @@ namespace VideoAV1Compressor
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Encoding file {file} failed!");
+                    File.Delete(newFileName);
                 }
 
                 Console.ResetColor();

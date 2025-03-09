@@ -4,11 +4,12 @@ namespace VideoAV1Compressor
 {
     internal class Program
     {
-        const string VERSION_STRING = "v1.3.1";
+        const string VERSION_STRING = "v1.4.0";
         static string directory = "";
         static int sublevels = -1;
         static uint quality = 23, cpu_used = 1;
         static string? skipListPath = null;
+        static bool confirm = false;
         static List<(List<string> names, CmdArgsParser.ArgType type)> validArgs = new()
         {
             (new(){"h", "help"}, CmdArgsParser.ArgType.SET),
@@ -17,6 +18,7 @@ namespace VideoAV1Compressor
             (new(){"q", "quality"}, CmdArgsParser.ArgType.UINT),
             (new(){"c", "cpu-used"}, CmdArgsParser.ArgType.UINT),
             (new(){"", "skip-list"}, CmdArgsParser.ArgType.STRING),
+            (new(){"y", "yes"}, CmdArgsParser.ArgType.BOOL),
         };
         static int Main(string[] args)
         {
@@ -30,7 +32,7 @@ namespace VideoAV1Compressor
                 if(!VerifyArgs(parsedArgs))
                     return 1;
 
-                CompressorManager compressorManager = new(directory, sublevels, quality, cpu_used, skipListPath);
+                CompressorManager compressorManager = new(directory, sublevels, quality, cpu_used, skipListPath, confirm);
                 compressorManager.Run();
             }
             catch (ArgumentException e)
@@ -73,6 +75,9 @@ namespace VideoAV1Compressor
                 if(parsedArgs.ContainsKey(validArgs[5].names))  //skip-list
                     skipListPath = parsedArgs.GetValueOrDefault(validArgs[5].names).value?.ToString()!;
 
+                if(parsedArgs.ContainsKey(validArgs[5].names))  //confirm
+                    confirm = (bool)parsedArgs.GetValueOrDefault(validArgs[5].names).value!;
+
                 if (quality > 63) //Value can only range from 0 to 63 (inclusive)
                 {
                     Console.WriteLine("Argument 'q', 'quality' can only range from 0 to 63 (inclusive)");
@@ -110,6 +115,7 @@ namespace VideoAV1Compressor
                               $"                  Where lower values mean a slower encoding with\n"+
                               $"                  smaller file size.\n"+
                               $"                  Default value is {cpu_used}");
+            Console.WriteLine($"-y --yes          Do not ask for confirmation before overwriting a file");
             Environment.Exit(0);
         }
     }
