@@ -4,7 +4,7 @@ namespace VideoAV1Compressor
 {
     internal class Program
     {
-        const string VERSION_STRING = "v1.4.0";
+        const string VERSION_STRING = "v1.4.1";
         static string directory = "";
         static int sublevels = -1;
         static uint quality = 23, cpu_used = 1;
@@ -18,7 +18,7 @@ namespace VideoAV1Compressor
             (new(){"q", "quality"}, CmdArgsParser.ArgType.UINT),
             (new(){"c", "cpu-used"}, CmdArgsParser.ArgType.UINT),
             (new(){"", "skip-list"}, CmdArgsParser.ArgType.STRING),
-            (new(){"y", "yes"}, CmdArgsParser.ArgType.BOOL),
+            (new(){"y", "yes"}, CmdArgsParser.ArgType.SET),
         };
         static int Main(string[] args)
         {
@@ -76,7 +76,7 @@ namespace VideoAV1Compressor
                     skipListPath = parsedArgs.GetValueOrDefault(validArgs[5].names).value?.ToString()!;
 
                 if(parsedArgs.ContainsKey(validArgs[5].names))  //confirm
-                    confirm = (bool)parsedArgs.GetValueOrDefault(validArgs[5].names).value!;
+                    confirm = true;
 
                 if (quality > 63) //Value can only range from 0 to 63 (inclusive)
                 {
